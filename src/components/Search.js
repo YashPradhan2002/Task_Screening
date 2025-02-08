@@ -22,6 +22,12 @@ function Search({ onStudentSelect }) {
         setSearchTerm(value);
     };
 
+    const handleStudentSelect = (student) => {
+        onStudentSelect(student);
+        setSearchTerm('');
+        setStudentResults([]);
+    };
+
     useEffect(() => {
         const fetchStudentResults = async () => {
             if (debouncedSearchTerm.length >= 3) {
@@ -43,6 +49,19 @@ function Search({ onStudentSelect }) {
         fetchStudentResults();
     }, [debouncedSearchTerm]);
 
+    const highlightText = (text, highlight) => {
+        const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+        return parts.map((part, index) =>
+            part.toLowerCase() === highlight.toLowerCase() ? (
+                <span key={index} className="highlight">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    };
+
     return (
         <div>
             <input
@@ -57,15 +76,15 @@ function Search({ onStudentSelect }) {
                     <span className="sr-only">Loading...</span>
                 </div>
             ) : (
-                <ul className="list-group mb-3">
+                <ul className="list-group mb-3 results-list">
                     {studentResults.map((student) => (
                         <li
                             key={student.rollNumber}
                             className="list-group-item"
-                            onClick={() => onStudentSelect(student)}
+                            onClick={() => handleStudentSelect(student)}
                             style={{ cursor: 'pointer' }}
                         >
-                            {student.name}
+                            {highlightText(student.name, searchTerm)}
                         </li>
                     ))}
                 </ul>
